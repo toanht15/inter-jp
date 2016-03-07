@@ -21,4 +21,9 @@ Route::get('/', function()
 	return View::make('home');
 });*/
 
-Route::get('/login', 'HomeController@loginWithTwitter');
+Route::get('/login', 'HomeController@login');
+Route::get('/printKey', 'HomeController@printKey');
+Route::get('/follow', 'HomeController@getFollow');
+
+Route::get('/getFollower', 'HomeController@getFollower');
+
