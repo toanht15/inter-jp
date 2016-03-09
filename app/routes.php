@@ -18,7 +18,7 @@ Route::get('/', function()
 
 Route::get('/list', function()
 {
-	return View::make('list');
+	return View::make('show');
 });
 
 /*Route::get('/home', function()
@@ -30,6 +30,6 @@ Route::get('/login', 'HomeController@login');
 Route::get('/printKey', 'HomeController@printKey');
 Route::get('/follow', 'HomeController@getFollow');
 Route::get('/getTweet', 'HomeController@getTweetUrl');
-Route::get('/test', 'HomeController@show');
+Route::get('/show', 'HomeController@show');
 
 

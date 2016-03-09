@@ -47,6 +47,7 @@ class HomeController extends BaseController {
 		$url = $connection->url("oauth/authorize", array("oauth_token" => $oauth_token));
 
 		//REDIRECTING TO THE URL
+		//return Redirect::action('HomeController@show');
 		return Redirect::to( (string)$url );
 		header('Location: ' . $url);
 	}
@@ -71,6 +72,8 @@ class HomeController extends BaseController {
 		setcookie("accessToken", $accessToken, time()+60*10);
 		setcookie("secretToken", $secretToken, time()+60*10);
 
+		return Redirect::action('HomeController@show');
+
 	}
 
 	private function getTwitterConnectTion()
@@ -89,7 +92,7 @@ class HomeController extends BaseController {
 		$urlList = [];
 		$connection = $this->getTwitterConnectTion();
 		$content = $connection->get("account/verify_credentials");
-		$statuses = $connection->get("statuses/home_timeline", ["count" => 20, "exclude_replies" => true]);
+		$statuses = $connection->get("statuses/home_timeline", ["count" => 10, "exclude_replies" => true]);
 		
 		foreach ($statuses as $st) {
 			// echo $st->text;
@@ -100,18 +103,11 @@ class HomeController extends BaseController {
 				if (strpos($u, '*') == false) {
 					$urlList[$u] = $this->getValueResult($u);
 				}		
-				// echo $u;
-				// echo "---".$this->getValueResult($u);
-				// echo "</br>";
 			}
 
-			// echo "</br>";
-			// echo "</br>";
 		}
 
 		arsort($urlList);
-		//echo "<pre>";
-		//dd($urlList);
 		return $urlList;
 	}
 
@@ -131,14 +127,14 @@ class HomeController extends BaseController {
 				$result = $connection->get("search/tweets", ["q" => $url, "count" => 100, "max_id" => $max_id,
 					"include_entities" => 1]);
 			 //echo "<pre>";
-			 //dd($result);
+			// dd($result);
 			$tweets = $result->statuses;
 			foreach ($tweets as $tweet) {
 				if ($tweet->user->following) {
 					$A++;
 				}
 			}
-			$tweetList = array_merge($tweetList,$tweets);
+			//$tweetList = array_merge($tweetList,$tweets);
 
 			if(count($tweets)<100){
 				$count = $count + count($tweets);
@@ -156,12 +152,8 @@ class HomeController extends BaseController {
 			}
 		}
 
-		var_dump($A);
-		var_dump($count);
-
 		$C = $A*100 + $count*0.0001;
 
-		//dd($C);
 		return $C;
 
 	}
@@ -177,7 +169,6 @@ class HomeController extends BaseController {
 
 		echo "<pre>";
 		$value = $this->getValueResult($url);
-		//var_dump($list);
 		echo "</pre>";
 	}
 
@@ -190,7 +181,12 @@ class HomeController extends BaseController {
 	public function getOgp($url){
 
 		$ojpList = [];
-		$sites_html = file_get_contents($url);
+		try {
+			$sites_html = file_get_contents($url);
+		} catch (Exception $e){
+			return null;
+		}
+		
 
 		$html = new DOMDocument();
 		@$html->loadHTML($sites_html);
@@ -198,9 +194,7 @@ class HomeController extends BaseController {
 	//Get all meta tags and loop through them.
 		foreach($html->getElementsByTagName('meta') as $meta) {
     //If the property attribute of the meta tag is og:image
-			if($meta->getAttribute('property')=='og:url'){
-				$ojpList['url'] = $meta->getAttribute('content');
-			}
+			$ojpList['url'] = $url;
 
 			if($meta->getAttribute('property')=='og:title'){
 				$ojpList['title'] = $meta->getAttribute('content');
@@ -218,12 +212,16 @@ class HomeController extends BaseController {
 		$list = [];
 		$i = 0;
 		$listNews = $this->getFollow();
-		foreach (array_keys($listNews) as $news) {
-			$list[$i++] = $this->getOgp($news);
-		}
+		//echo "<pre>";
+		//var_dump($listNews);
+		$url = array_keys($listNews);
+		foreach ($url as $u) {
+			$list[$i++] = $this->getOgp($u);
+			}
 
-		echo "<pre>";
-		var_dump($list);
+			// echo "<pre>";
+			// dd($list);
+		return View::make('show', compact('list'));
 	}
 
 }
