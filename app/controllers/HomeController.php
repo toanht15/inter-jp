@@ -88,9 +88,93 @@ class HomeController extends BaseController {
 	{
 		$connection = $this->getTwitterConnectTion();
 		$content = $connection->get("account/verify_credentials");
-		$statuses = $connection->get("statuses/home_timeline", ["count" => 25, "exclude_replies" => true]);
+		$statuses = $connection->get("statuses/home_timeline", ["count" => 20, "exclude_replies" => true]);
+		
+		foreach ($statuses as $st) {
+			echo $st->text;
+			echo "</br>";
+			$url = $this->getUrls($st->text);
+
+			foreach ($url as $u) {
+				echo $u;
+				echo "---".$this->getValueResult($u);
+				echo "</br>";
+			}
+
+			echo "</br>";
+			echo "</br>";
+		}
+	}
+
+	public  function getValueResult($url)
+	{
+		$tweetList = [];
+		$index = 0;
+		$count = 0;
+		$A = 0;
+
+		$connection = $this->getTwitterConnectTion();
+
+		while(true){
+
+			if($index == 0) $result = $connection->get("search/tweets", ["q" => $url, "count" => 100]);
+			else
+				$result = $connection->get("search/tweets", ["q" => $url, "count" => 100, "max_id" => $max_id,
+					"include_entities" => 1]);
+
+			$tweets = $result->statuses;
+			foreach ($tweets as $tweet) {
+				if ($tweet->user->following) {
+					$A++;
+				}
+			}
+			$tweetList = array_merge($tweetList,$tweets);
+
+			if(count($tweets)<100){
+				$count = $count + count($tweets);
+				break;
+			}
+
+			$count = $count + 100;
+			$uri = $result->search_metadata->next_results;
+			$max_id = $this->getMaxId($uri);
+
+
+			$index +=1;
+			if($index > 20){
+				break;
+			}
+		}
+
+		var_dump($A);
+		var_dump($count);
+
+		$C = $A*100 + $count*0.0001;
+
+		//dd($C);
+		return $C;
+
+	}
+
+	private function getUrls($string) {
+		$regex = '/https?\:\/\/[^\" ]+/i';
+		preg_match_all($regex, $string, $matches);
+		return ($matches[0]);
+	}
+
+	public function getTweetUrl(){
+		$url = 'http://www.yahoo.co.jp/';
+
 		echo "<pre>";
-		var_dump($statuses);
+		$value = $this->getValueResult($url);
+		//var_dump($list);
 		echo "</pre>";
 	}
+
+	public function getMaxId($string){
+		$start = strrpos($string,'max_id=');
+		$end = strrpos($string,'&q=http');
+		return substr($string, $start+7, $end-8);
+	}
+
 }
