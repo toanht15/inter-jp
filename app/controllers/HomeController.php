@@ -86,24 +86,33 @@ class HomeController extends BaseController {
 
 	public function getFollow()
 	{
+		$urlList = [];
 		$connection = $this->getTwitterConnectTion();
 		$content = $connection->get("account/verify_credentials");
 		$statuses = $connection->get("statuses/home_timeline", ["count" => 20, "exclude_replies" => true]);
 		
 		foreach ($statuses as $st) {
-			echo $st->text;
-			echo "</br>";
+			// echo $st->text;
+			// echo "</br>";
 			$url = $this->getUrls($st->text);
 
 			foreach ($url as $u) {
-				echo $u;
-				echo "---".$this->getValueResult($u);
-				echo "</br>";
+				if (strpos($u, '*') == false) {
+					$urlList[$u] = $this->getValueResult($u);
+				}		
+				// echo $u;
+				// echo "---".$this->getValueResult($u);
+				// echo "</br>";
 			}
 
-			echo "</br>";
-			echo "</br>";
+			// echo "</br>";
+			// echo "</br>";
 		}
+
+		arsort($urlList);
+		//echo "<pre>";
+		//dd($urlList);
+		return $urlList;
 	}
 
 	public  function getValueResult($url)
@@ -121,7 +130,8 @@ class HomeController extends BaseController {
 			else
 				$result = $connection->get("search/tweets", ["q" => $url, "count" => 100, "max_id" => $max_id,
 					"include_entities" => 1]);
-
+			 //echo "<pre>";
+			 //dd($result);
 			$tweets = $result->statuses;
 			foreach ($tweets as $tweet) {
 				if ($tweet->user->following) {
@@ -175,6 +185,45 @@ class HomeController extends BaseController {
 		$start = strrpos($string,'max_id=');
 		$end = strrpos($string,'&q=http');
 		return substr($string, $start+7, $end-8);
+	}
+
+	public function getOgp($url){
+
+		$ojpList = [];
+		$sites_html = file_get_contents($url);
+
+		$html = new DOMDocument();
+		@$html->loadHTML($sites_html);
+		$meta_og_img = null;
+	//Get all meta tags and loop through them.
+		foreach($html->getElementsByTagName('meta') as $meta) {
+    //If the property attribute of the meta tag is og:image
+			if($meta->getAttribute('property')=='og:url'){
+				$ojpList['url'] = $meta->getAttribute('content');
+			}
+
+			if($meta->getAttribute('property')=='og:title'){
+				$ojpList['title'] = $meta->getAttribute('content');
+			}
+
+			if($meta->getAttribute('property')=='og:image'){
+				$ojpList['image'] = $meta->getAttribute('content');
+			}
+		}
+
+		return $ojpList;
+	}
+
+	public function show(){
+		$list = [];
+		$i = 0;
+		$listNews = $this->getFollow();
+		foreach (array_keys($listNews) as $news) {
+			$list[$i++] = $this->getOgp($news);
+		}
+
+		echo "<pre>";
+		var_dump($list);
 	}
 
 }
