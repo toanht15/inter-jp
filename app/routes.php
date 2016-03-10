@@ -31,5 +31,6 @@ Route::get('/printKey', 'HomeController@printKey');
 Route::get('/follow', 'HomeController@getFollow');
 Route::get('/getTweet', 'HomeController@getTweetUrl');
 Route::get('/show', 'HomeController@show');
+Route::get('/logout', 'HomeController@logout');
 
 

@@ -19,7 +19,7 @@
           <li class="pure-menu-item"><a href="#main" class="pure-menu-link">TOP</a></li>
           <li class="pure-menu-item"><a href="#about" class="pure-menu-link">ABOUT</a></li>
           <li class="pure-menu-item"><a href="#form" class="pure-menu-link">CONTUCT US</a></li>
-          <li class="pure-menu-item"><a href="#form" class="pure-menu-link">LOGOUT</a></li>
+          <li class="pure-menu-item"><a href="http://localhost:8000/logout" class="pure-menu-link">LOGOUT</a></li>
         </ul>
       </div>
     </div>
@@ -32,12 +32,18 @@
 
         @foreach ($list as $l)
 
-        @if ($l !== null && isset($l['image']) && isset($l['title'])) 
+        @if ($l !== null ) 
         <!-- 1block -->
+
         <div class="pure-u-sm-1-4">
           <div class="pure-u-1 news">   
-            <img class="pure-img" src="{{ $l['image'] }}" height="400px" width="200px"/>
-            <h3><a href="{{ $l['url'] }}" target="blank">{{ $l['title'] }}</a></h3>
+            @if(isset($l['image']) && isset($l['title']))
+              <img class="pure-img" src="{{ $l['image'] }}" height="400px" width="200px"/>
+              <h3><a href="{{ $l['url'] }}" target="_blank">{{ $l['title'] }}</a></h3>
+            @else 
+              <img class="pure-img" src="http://maylocnuocnewlife.com/wp-content/themes/newlife/images/no_image_available.jpg" height="400px" width="200px"/> 
+              <h3><a href="{{ $l['url'] }}" target="_blank">Please click here to read news</a></h3>
+            @endif
 
             <br>
           </div>

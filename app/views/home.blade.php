@@ -22,7 +22,7 @@
             <li class="pure-menu-item"><a href="#main" class="pure-menu-link">TOP</a></li>
             <li class="pure-menu-item"><a href="#about" class="pure-menu-link">ABOUT</a></li>
             <li class="pure-menu-item"><a href="#form" class="pure-menu-link">CONTUCT US</a></li>
-            <li class="pure-menu-item"><a href="#form" class="pure-menu-link">LOGOUT</a></li>
+            <li class="pure-menu-item"><a href="http://localhost:8000/logout" class="pure-menu-link">LOGOUT</a></li>
           </ul>
         </div>
       </div>

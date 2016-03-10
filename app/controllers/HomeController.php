@@ -23,7 +23,7 @@ class HomeController extends BaseController {
 
 	public function showWelcome()
 	{
-		return View::make('hello');
+		return View::make('home');
 	}
 
 	public function login(){
@@ -92,7 +92,7 @@ class HomeController extends BaseController {
 		$urlList = [];
 		$connection = $this->getTwitterConnectTion();
 		$content = $connection->get("account/verify_credentials");
-		$statuses = $connection->get("statuses/home_timeline", ["count" => 10, "exclude_replies" => true]);
+		$statuses = $connection->get("statuses/home_timeline", ["count" => 8, "exclude_replies" => true]);
 		
 		foreach ($statuses as $st) {
 			// echo $st->text;
@@ -182,6 +182,7 @@ class HomeController extends BaseController {
 
 		$ojpList = [];
 		try {
+			ini_set('max_execution_time', 1000);
 			$sites_html = file_get_contents($url);
 		} catch (Exception $e){
 			return null;
@@ -222,6 +223,13 @@ class HomeController extends BaseController {
 			// echo "<pre>";
 			// dd($list);
 		return View::make('show', compact('list'));
+	}
+
+	public function logout(){
+		$cookie = Cookie::forget('accessToken');
+
+		return Redirect::to('/')->withCookie($cookie);;
+		//return Response::make('home')->withCookie($cookie);
 	}
 
 }
